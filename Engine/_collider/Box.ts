@@ -10,42 +10,41 @@ import { ColliderType } from './types';
  * @implements IBoxCollider
  */
 export class BoxCollider extends AbstractCollider implements IBoxCollider {
-    /**
-     * @description Ширина коллайдера
-     */
-    public width: number;
-    /**
-     * @description Высота коллайдера
-     */
-    public height: number;
-    /**
-     * @description Тип коллайдера
-     */
-    public type: ColliderType = ColliderType.Box;
+  /**
+   * @description Ширина коллайдера
+   */
+  public width: number;
+  /**
+   * @description Высота коллайдера
+   */
+  public height: number;
+  /**
+   * @description Тип коллайдера
+   */
+  public type: ColliderType = ColliderType.Box;
 
-    /**
-     * @param gameObject Игровой объект, к которому привязан коллайдер
-     * @param width Ширина коллайдера, по умолчанию ширина обекта
-     * @param height Высота коллайдера, по умолчанию высота объекта
-     */
-    constructor(
-        public gameObject: IGameObject,
-        width?: number,
-        height?: number
-    ) {
-        super(gameObject);
+  /**
+   * @param gameObject Игровой объект, к которому привязан коллайдер
+   * @param width Ширина коллайдера, по умолчанию ширина обекта
+   * @param height Высота коллайдера, по умолчанию высота объекта
+   */
+  constructor(
+    public gameObject: IGameObject,
+    width?: number,
+    height?: number,
+  ) {
+    super(gameObject);
 
-        this.width = width ?? gameObject.transform.width;
-        this.height = height ?? gameObject.transform.height;
-    }
+    this.width = width ?? gameObject.transform.width;
+    this.height = height ?? gameObject.transform.height;
+  }
 
-    /**
-     * @description Проверяет, сталкивается ли этот коллайдер с другим
-     * @param other Другой коллайдер
-     * @returns true, если есть столкновение, иначе false
-     */
-    isCollidingWith(other: IAbstractCollider): boolean {
-        return checkCollision(this, other);
-    }
-
+  /**
+   * @description Проверяет, сталкивается ли этот коллайдер с другим
+   * @param other Другой коллайдер
+   * @returns true, если есть столкновение, иначе false
+   */
+  isCollidingWith(other: IAbstractCollider): boolean {
+    return checkCollision(this, other);
+  }
 }
