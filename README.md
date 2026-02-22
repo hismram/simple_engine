@@ -6,7 +6,7 @@
 
 В качестве демонстрации в репозитории есть простая реализация игры "Пинг-понг".
 
-Вы можете посмотреть живое демо [здесь](https://htmlpreview.github.io/?https://github.com/hismram/simple_engine//blob/main/ping-pong.html)
+Вы можете посмотреть живое демо [здесь](https://hismram.github.io/simple_engine/)
 
 ## Установка
 
