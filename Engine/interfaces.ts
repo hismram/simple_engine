@@ -7,11 +7,11 @@ import { Vector2 } from './Vector2';
  * @description Параметры для создания игрового объекта
  */
 export interface IGameObjectOptions {
-    /**
-     * @type {Transform}
-     * @description Трансформация игрового объекта
-     */
-    transform: Transform;
+  /**
+   * @type {Transform}
+   * @description Трансформация игрового объекта
+   */
+  transform: Transform;
 }
 
 /**
@@ -19,26 +19,26 @@ export interface IGameObjectOptions {
  * @description Интерфейс игрового объекта
  */
 export interface IGameObject {
-    /**
-     * @type {(IAbstractCollider | null)}
-     * @description Коллайдер игрового объекта
-     */
-    collider: IAbstractCollider | null;
-    /**
-     * @type {Transform}
-     * @description Позиция и размеры
-     */
-    transform: Transform;
-    /**
-     * @type {Vector2}
-     * @description Скорость игрового объекта
-     */
-    velocity: Vector2;
-    /**
-     * @type {Vector2}
-     * @description Ускорение игрового объекта
-     */
-    acceleration: Vector2
+  /**
+   * @type {(IAbstractCollider | null)}
+   * @description Коллайдер игрового объекта
+   */
+  collider: IAbstractCollider | null;
+  /**
+   * @type {Transform}
+   * @description Позиция и размеры
+   */
+  transform: Transform;
+  /**
+   * @type {Vector2}
+   * @description Скорость игрового объекта
+   */
+  velocity: Vector2;
+  /**
+   * @type {Vector2}
+   * @description Ускорение игрового объекта
+   */
+  acceleration: Vector2;
 }
 
 /**
@@ -46,19 +46,19 @@ export interface IGameObject {
  * @description Параметры для ядра движка
  */
 export interface IEngineCoreOptions {
-    /**
-     * @type {string}
-     * @description Идентификатор HTML-элемента canvas
-     */
-    canvasId: string;
-    /**
-     * @type {(() => void) | undefined}
-     * @description Функция обратного вызова, вызываемая перед обновлением
-     */
-    onBeforeUpdate?: () => void;
-    /**
-     * @type {(() => void) | undefined}
-     * @description Функция обратного вызова, вызываемая перед отрисовкой
-     */
-    onBeforeDraw?: () => void
+  /**
+   * @type {string}
+   * @description Идентификатор HTML-элемента canvas
+   */
+  canvasId: string;
+  /**
+   * @type {(() => void) | undefined}
+   * @description Функция обратного вызова, вызываемая перед обновлением
+   */
+  onBeforeUpdate?: () => void;
+  /**
+   * @type {(() => void) | undefined}
+   * @description Функция обратного вызова, вызываемая перед отрисовкой
+   */
+  onBeforeDraw?: () => void;
 }

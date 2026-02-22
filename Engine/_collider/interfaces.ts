@@ -6,20 +6,20 @@ import { IGameObject } from 'Engine/interfaces';
  * @description Интерфейс для абстрактного коллайдера
  */
 export interface IAbstractCollider {
-    /**
-     * @description Тип коллайдера
-     */
-    type: ColliderType;
-    /**
-     * @description Игровой объект, к которому привязан коллайдер
-     */
-    gameObject: IGameObject;
-    /**
-     * @description Проверяет, сталкивается ли этот коллайдер с другим
-     * @param other Другой коллайдер
-     * @returns true, если есть столкновение, иначе false
-     */
-    isCollidingWith(other: IAbstractCollider): boolean;
+  /**
+   * @description Тип коллайдера
+   */
+  type: ColliderType;
+  /**
+   * @description Игровой объект, к которому привязан коллайдер
+   */
+  gameObject: IGameObject;
+  /**
+   * @description Проверяет, сталкивается ли этот коллайдер с другим
+   * @param other Другой коллайдер
+   * @returns true, если есть столкновение, иначе false
+   */
+  isCollidingWith(other: IAbstractCollider): boolean;
 }
 
 /**
@@ -27,14 +27,14 @@ export interface IAbstractCollider {
  * @extends IAbstractCollider
  */
 export interface IBoxCollider extends IAbstractCollider {
-    /**
-     * @description Ширина коллайдера
-     */
-    width: number;
-    /**
-     * @description Высота коллайдера
-     */
-    height: number;
+  /**
+   * @description Ширина коллайдера
+   */
+  width: number;
+  /**
+   * @description Высота коллайдера
+   */
+  height: number;
 }
 
 /**
@@ -42,14 +42,14 @@ export interface IBoxCollider extends IAbstractCollider {
  * @extends IAbstractCollider
  */
 export interface ICircleCollider extends IAbstractCollider {
-    /**
-     * @description Радиус коллайдера
-     */
-    radius: number;
+  /**
+   * @description Радиус коллайдера
+   */
+  radius: number;
 
-    /**
-     * @description Возвращает центр коллайдера
-     * @returns Координаты центра
-     */
-    getCenter(): Vector2;
+  /**
+   * @description Возвращает центр коллайдера
+   * @returns Координаты центра
+   */
+  getCenter(): Vector2;
 }
