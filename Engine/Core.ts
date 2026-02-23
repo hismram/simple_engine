@@ -1,3 +1,4 @@
+import { ICollisionResult } from './_collider/interfaces';
 import { GameObject } from './GameObject';
 import { IEngineCoreOptions } from './interfaces';
 
@@ -26,6 +27,12 @@ export class EngineCore {
   private _gameObjects: GameObject[] = [];
   /**
    * @private
+   * @type {boolean}
+   * @description Включает отладку для движка
+   */
+  private _debug: boolean = false;
+  /**
+   * @private
    * @type {number}
    * @description Идентификатор текущего кадра анимации
    */
@@ -47,11 +54,12 @@ export class EngineCore {
    * @constructor
    * @param {IEngineCoreOptions} options Параметры для ядра движка
    */
-  constructor({ canvasId, onBeforeUpdate, onBeforeDraw }: IEngineCoreOptions) {
+  constructor({ canvasId, onBeforeUpdate, onBeforeDraw, debug }: IEngineCoreOptions) {
     this.canvas = document.getElementById(canvasId) as HTMLCanvasElement;
     this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
     this._onBeforeUpdate = onBeforeUpdate;
     this._onBeforeDraw = onBeforeDraw;
+    this._debug = debug ?? false;
   }
 
   /**
@@ -60,6 +68,9 @@ export class EngineCore {
    * @description Добавляет объекты на сцену
    */
   addGameObjects(objects: GameObject[]): void {
+    if (this._debug) {
+      objects.forEach((object) => (object.debug = true));
+    }
     this._gameObjects = [...this._gameObjects, ...objects];
   }
 
@@ -104,9 +115,16 @@ export class EngineCore {
 
         if (!b.collider || !b.isEnabled()) continue;
 
-        if (a.collider.isCollidingWith(b.collider)) {
-          a.onCollision(b);
-          b.onCollision(a);
+        const collisionResult = a.collider.isCollidingWith(b.collider);
+        if (collisionResult.collided) {
+          a.onCollision(b, collisionResult);
+          // Инвертируем нормаль и вектор проникновения для второго объекта
+          const invertedResult: ICollisionResult = {
+            ...collisionResult,
+            normal: collisionResult.normal ? { x: -collisionResult.normal.x, y: -collisionResult.normal.y } : null,
+            penetration: collisionResult.penetration ? { x: -collisionResult.penetration.x, y: -collisionResult.penetration.y } : null,
+          };
+          b.onCollision(a, invertedResult);
         }
       }
     }
@@ -119,7 +137,13 @@ export class EngineCore {
    * @description Основной игровой цикл
    */
   private gameLoop(time: number = 0): void {
-    this._onBeforeUpdate?.();
+      for (const item of this._gameObjects) {
+          if (item.isEnabled()) {
+              item.transform.position.previousPoint = { ...item.transform.position.point };
+          }
+      }
+  
+      this._onBeforeUpdate?.();
     for (const item of this._gameObjects) {
       if (item.isEnabled()) {
         item.update(time);

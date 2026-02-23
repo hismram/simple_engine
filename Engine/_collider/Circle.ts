@@ -1,6 +1,6 @@
-import { Vector2 } from 'Engine/Vector2';
+import { Point } from 'Engine/Point';
 import { Abstract } from './Abstract';
-import { IAbstractCollider, ICircleCollider } from './interfaces';
+import { IAbstractCollider, ICircleCollider, ICollisionResult } from './interfaces';
 import { IGameObject } from 'Engine/interfaces';
 import { checkCollision } from './Utils';
 import { ColliderType } from './types';
@@ -37,11 +37,14 @@ export class CircleCollider extends Abstract implements ICircleCollider {
    * @description Возвращает центр коллайдера
    * @returns Координаты центра
    */
-  getCenter(): Vector2 {
-    return {
-      x: this.gameObject.transform.x + this.radius,
-      y: this.gameObject.transform.y + this.radius,
-    };
+  getCenter(): Point {
+    const point = this.gameObject.transform.position.point;
+        const pivot = this.gameObject.transform.pivot;
+        
+        return {
+          x: point.x + pivot.x,
+          y: point.y + pivot.y,
+        };
   }
 
   /**
@@ -49,7 +52,7 @@ export class CircleCollider extends Abstract implements ICircleCollider {
    * @param other Другой коллайдер
    * @returns true, если есть столкновение, иначе false
    */
-  isCollidingWith(other: IAbstractCollider): boolean {
+  isCollidingWith(other: IAbstractCollider): ICollisionResult {
     return checkCollision(this, other);
   }
 }

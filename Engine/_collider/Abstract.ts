@@ -1,4 +1,4 @@
-import { IAbstractCollider } from './interfaces';
+import { IAbstractCollider, ICollisionResult } from './interfaces';
 import { IGameObject } from 'Engine/interfaces';
 import { ColliderType } from './types';
 
@@ -22,7 +22,7 @@ export abstract class Abstract implements IAbstractCollider {
   /**
    * @description Проверяет, сталкивается ли этот коллайдер с другим
    * @param other Другой коллайдер
-   * @returns true, если есть столкновение, иначе false
+   * @returns Результат столкновения
    */
-  abstract isCollidingWith(other: IAbstractCollider): boolean;
+  abstract isCollidingWith(other: IAbstractCollider): ICollisionResult;
 }
