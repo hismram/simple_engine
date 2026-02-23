@@ -1,12 +1,15 @@
 {
-  "name": "ai_test",
+  "name": "simple_engine",
   "version": "0.0.1",
   "description": "",
+  "homepage": "https://hismr.github.io/simple_engine",
   "scripts": {
     "start": "webpack serve --open",
     "build": "webpack",
     "lint": "eslint . --ext .ts",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +20,7 @@
     "eslint": "^10.0.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
+    "gh-pages": "^6.3.0",
     "html-webpack-plugin": "^5.6.6",
     "prettier": "^3.8.1",
     "style-loader": "^4.0.0",

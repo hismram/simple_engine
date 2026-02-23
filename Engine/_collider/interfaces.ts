@@ -1,6 +1,25 @@
+import { Point } from 'Engine/Point';
 import { Vector2 } from 'Engine/Vector2';
 import { ColliderType } from './types';
 import { IGameObject } from 'Engine/interfaces';
+
+/**
+ * @description Результат проверки столкновения
+ */
+export interface ICollisionResult {
+  /**
+   * @description Произошло ли столкновение
+   */
+  collided: boolean;
+  /**
+   * @description Нормаль столкновения (вектор, перпендикулярный поверхности)
+   */
+  normal: Vector2 | null;
+  /**
+   * @description Вектор проникновения (MTV) для разрешения столкновения
+   */
+  penetration: Vector2 | null;
+}
 
 /**
  * @description Интерфейс для абстрактного коллайдера
@@ -17,9 +36,9 @@ export interface IAbstractCollider {
   /**
    * @description Проверяет, сталкивается ли этот коллайдер с другим
    * @param other Другой коллайдер
-   * @returns true, если есть столкновение, иначе false
+   * @returns Результат столкновения
    */
-  isCollidingWith(other: IAbstractCollider): boolean;
+  isCollidingWith(other: IAbstractCollider): ICollisionResult;
 }
 
 /**
@@ -51,5 +70,5 @@ export interface ICircleCollider extends IAbstractCollider {
    * @description Возвращает центр коллайдера
    * @returns Координаты центра
    */
-  getCenter(): Vector2;
+  getCenter(): Point;
 }

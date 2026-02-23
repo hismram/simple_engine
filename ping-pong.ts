@@ -1,6 +1,8 @@
 import { EngineCore } from 'Engine/Core';
 import { GameObject } from 'Engine/GameObject';
 import { BoxCollider, CircleCollider } from 'Engine/collider';
+import { ICollisionResult } from 'Engine/_collider/interfaces';
+import { reflect } from 'Engine/mathUtils';
 import './style.css';
 import { Vector2 } from 'Engine/Vector2';
 
@@ -40,16 +42,17 @@ class PingPongGame {
       canvasId,
       onBeforeUpdate: this._onBeforeUpdate.bind(this),
       onBeforeDraw: this._onBeforeDraw.bind(this),
+      debug: false,
     });
     this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
 
     this.ball = new Ball(this.canvas.width / 2, this.canvas.height / 2);
     this.player = new Paddle({
-      x: 0,
+      x: 10,
       y: this.canvas.height / 2 - 50,
     });
     this.computer = new Paddle({
-      x: this.canvas.width - 10,
+      x: this.canvas.width - 20,
       y: this.canvas.height / 2 - 50,
       ai: true,
       ball: this.ball,
@@ -88,10 +91,10 @@ class PingPongGame {
     const { player, ball, keys, canvas } = this;
 
     if (keys.ArrowUp) {
-      player.transform.y -= 8;
+      player.transform.position.point.y -= 8;
     }
     if (keys.ArrowDown) {
-      player.transform.y += 8;
+      player.transform.position.point.y += 8;
     }
 
     if (ball.getCenter().y + ball.radius > canvas.height || ball.getCenter().y - ball.radius < 0) {
@@ -99,10 +102,10 @@ class PingPongGame {
     }
 
     // Проверяем, был ли забит гол
-    if (ball.getCenter().x - ball.radius < 0) {
+    if (ball.getCenter().x + ball.radius < 0) {
       this.computer.score++;
       this.resetBall();
-    } else if (ball.getCenter().x + ball.radius > canvas.width) {
+    } else if (ball.getCenter().x - ball.radius > canvas.width) {
       player.score++;
       this.resetBall();
     }
@@ -122,7 +125,7 @@ class PingPongGame {
   private setupEventListeners(): void {
     this.canvas.addEventListener('mousemove', (evt: MouseEvent) => {
       const rect = this.canvas.getBoundingClientRect();
-      this.player.transform.y = evt.clientY - rect.top - this.player.transform.height / 2;
+      this.player.transform.position.point.y = evt.clientY - rect.top - this.player.transform.height / 2;
     });
 
     window.addEventListener('keydown', (e) => {
@@ -145,8 +148,8 @@ class PingPongGame {
   private resetBall(): void {
     const { ball } = this;
 
-    ball.transform.x = this.canvas.width / 2 - ball.radius;
-    ball.transform.y = this.canvas.height / 2 - ball.radius;
+    ball.transform.position.point.x = this.canvas.width / 2 - ball.radius;
+        ball.transform.position.point.y = this.canvas.height / 2 - ball.radius;
     ball.speed = 5;
     ball.velocity.x = -ball.velocity.x;
   }
@@ -197,8 +200,16 @@ class Paddle extends GameObject {
    */
   constructor({ x, y, ball, ai }: IPaddleOptions) {
     super({
-      transform: { x, y, width: 10, height: 100 },
-    });
+          transform: {
+            position: {
+              point: { x, y },
+              rotation: 0,
+            },
+            pivot: { x: 5, y: 50 },
+            width: 10,
+            height: 100,
+          },
+        });
 
     this.collider = new BoxCollider(this);
     this._ball = ball ?? null;
@@ -212,9 +223,25 @@ class Paddle extends GameObject {
    * @param {CanvasRenderingContext2D} ctx - Контекст рендеринга
    */
   public draw(ctx: CanvasRenderingContext2D): void {
-    const { x, y, width, height } = this.transform;
-    ctx.fillStyle = this.color;
-    ctx.fillRect(x, y, width, height);
+    const { position, pivot, width, height } = this.transform;
+        const { point, rotation } = position;
+    
+        ctx.save();
+        ctx.translate(point.x + pivot.x, point.y + pivot.y);
+            ctx.rotate(rotation);
+        
+            ctx.fillStyle = this.color;
+            ctx.fillRect(-pivot.x, -pivot.y, width, height);
+        
+            // Рисуем коллайдер для отладки
+            if (this.debug && this.collider) {
+              ctx.strokeStyle = 'red';
+              ctx.lineWidth = 1;
+              const box = this.collider as BoxCollider;
+              ctx.strokeRect(-pivot.x, -pivot.y, box.width, box.height);
+            }
+        
+            ctx.restore();
   }
 
   /**
@@ -224,7 +251,7 @@ class Paddle extends GameObject {
    */
   public update(_time: number): void {
     if (this._ai && this._ball) {
-      this.transform.y += (this._ball.getCenter().y - (this.transform.y + this.transform.height / 2)) * 0.1;
+      this.transform.position.point.y += (this._ball.getCenter().y - (this.transform.position.point.y + this.transform.height / 2)) * 0.1;
     }
   }
 }
@@ -248,8 +275,11 @@ class Ball extends GameObject {
     const radius = 10;
 
     const transform = {
-      x: x - radius,
-      y: y - radius,
+      position: {
+              point: { x: x - radius, y: y - radius },
+              rotation: 0,
+            },
+            pivot: { x: radius, y: radius },
       width: radius * 2,
       height: radius * 2,
     };
@@ -265,19 +295,23 @@ class Ball extends GameObject {
    * @description Обрабатывает столкновение с другими игровыми объектами
    * @param {GameObject} other - Другой игровой объект, участвующий в столкновении
    */
-  onCollision(other: GameObject): void {
-    if (other instanceof Paddle) {
-      let collidePoint = this.getCenter().y - (other.transform.y + other.transform.height / 2);
+  onCollision(other: GameObject, result: ICollisionResult): void {
+    if (other instanceof Paddle && result.normal) {
+      // 1. Разрешение проникновения
+      if (result.penetration) {
+        this.transform.position.point.x += result.penetration.x;
+        this.transform.position.point.y += result.penetration.y;
+      }
 
-      collidePoint = collidePoint / (other.transform.height / 2);
+      // 2. Отражение скорости
+      const newVelocity = reflect(this.velocity, result.normal);
+      this.velocity = newVelocity;
 
-      const angleRad = (Math.PI / 4) * collidePoint;
-      const direction = this.transform.x < 400 ? 1 : -1;
-
-      this.velocity.x = direction * this.speed * Math.cos(angleRad);
-      this.velocity.y = this.speed * Math.sin(angleRad);
-
+      // 3. Увеличение скорости для динамики
       this.speed += 0.1;
+      const magnitude = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
+      this.velocity.x = (this.velocity.x / magnitude) * this.speed;
+      this.velocity.y = (this.velocity.y / magnitude) * this.speed;
     }
   }
 
@@ -288,8 +322,8 @@ class Ball extends GameObject {
    */
   public getCenter(): Vector2 {
     return {
-      x: this.transform.x + this.radius,
-      y: this.transform.y + this.radius,
+      x: this.transform.position.point.x + this.radius,
+            y: this.transform.position.point.y + this.radius,
     };
   }
 
@@ -299,14 +333,27 @@ class Ball extends GameObject {
    * @param {CanvasRenderingContext2D} ctx - Контекст рендеринга
    */
   public draw(ctx: CanvasRenderingContext2D): void {
-    const centerX = this.transform.x + this.radius;
-    const centerY = this.transform.y + this.radius;
+    const centerX = this.transform.position.point.x + this.radius;
+        const centerY = this.transform.position.point.y + this.radius;
 
     ctx.fillStyle = this.color;
     ctx.beginPath();
     ctx.arc(centerX, centerY, this.radius, 0, Math.PI * 2, false);
     ctx.closePath();
     ctx.fill();
+
+    // Рисуем коллайдер для отладки
+    if (this.debug && this.collider) {
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, this.radius, 0, Math.PI * 2, false);
+      ctx.stroke();
+    }
+
+    if (this.debug) {
+      console.log(`ball: ${JSON.stringify(this.transform)}`);
+    }
   }
 
   /**
@@ -314,10 +361,11 @@ class Ball extends GameObject {
    * @description Обновляет позицию мяча на основе его скорости
    * @param {number} _deltaTime - Дельта времени (не используется)
    */
-  update(_deltaTime: number): void {
-    this.transform.x += this.velocity.x;
-    this.transform.y += this.velocity.y;
-  }
+  // Этот метод больше не нужен, так как GameObject.update теперь делает то же самое
+    // update(_deltaTime: number): void {
+    //   this.transform.position.point.x += this.velocity.x;
+    //   this.transform.position.point.y += this.velocity.y;
+    // }
 }
 
 /**

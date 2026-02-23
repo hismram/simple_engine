@@ -1,6 +1,6 @@
 import { IGameObject } from 'Engine/interfaces';
 import { Abstract as AbstractCollider } from './Abstract';
-import { IAbstractCollider, IBoxCollider } from './interfaces';
+import { IAbstractCollider, IBoxCollider, ICollisionResult } from './interfaces';
 import { checkCollision } from './Utils';
 import { ColliderType } from './types';
 
@@ -44,7 +44,7 @@ export class BoxCollider extends AbstractCollider implements IBoxCollider {
    * @param other Другой коллайдер
    * @returns true, если есть столкновение, иначе false
    */
-  isCollidingWith(other: IAbstractCollider): boolean {
+  isCollidingWith(other: IAbstractCollider): ICollisionResult {
     return checkCollision(this, other);
   }
 }

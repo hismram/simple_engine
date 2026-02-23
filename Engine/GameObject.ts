@@ -1,4 +1,4 @@
-import { IAbstractCollider } from 'Engine/collider';
+import { IAbstractCollider, ICollisionResult } from './_collider/interfaces';
 import { IGameObject, IGameObjectOptions } from './interfaces';
 import { Transform } from './Transform';
 import { Vector2 } from './Vector2';
@@ -26,6 +26,11 @@ export class GameObject implements IGameObject {
    * @description Активация, неактивированные обекты не участвуют в расчетах
    */
   private _enabled: boolean = false;
+  /**
+   * @type {boolean}
+   * @description Включает отладку для объекта
+   */
+  public debug: boolean = false;
 
   /**
    * @type {(IAbstractCollider | null)}
@@ -37,6 +42,11 @@ export class GameObject implements IGameObject {
    * @description Позиция и размеры объекта
    */
   transform: Transform;
+  /**
+   * @type {number}
+   * @description Скорость вращения
+   */
+  rotationVelocity: number = 0;
   /**
    * @type {Vector2}
    * @description Скорость объекта
@@ -52,8 +62,9 @@ export class GameObject implements IGameObject {
    * @constructor
    * @param {IGameObjectOptions} Конфигурация
    */
-  constructor({ transform }: IGameObjectOptions) {
+  constructor({ transform, debug }: IGameObjectOptions) {
     this.transform = transform;
+    this.debug = debug ?? false;
   }
 
   /**
@@ -124,6 +135,11 @@ export class GameObject implements IGameObject {
   update(_deltaTime: number): void {
     this.velocity.x += this.acceleration.x;
     this.velocity.y += this.acceleration.y;
+
+    this.transform.position.point.x += this.velocity.x;
+    this.transform.position.point.y += this.velocity.y;
+
+    this.transform.position.rotation += this.rotationVelocity;
   }
 
   /**
@@ -131,12 +147,12 @@ export class GameObject implements IGameObject {
    * @param {CanvasRenderingContext2D} ctx
    * @description Вызывается для отрисовки объекта
    */
-  draw(_ctx: CanvasRenderingContext2D): void {}
+  draw(_ctx: CanvasRenderingContext2D): void { }
 
   /**
    * @method onCollision
    * @param {GameObject} other
    * @description Вызывается при столкновении с другим объектом.
    */
-  onCollision(_other: GameObject): void {}
+  onCollision(_other: GameObject, _result: ICollisionResult): void { }
 }

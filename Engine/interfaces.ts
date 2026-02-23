@@ -1,4 +1,4 @@
-import { IAbstractCollider } from 'Engine/collider';
+import { IAbstractCollider, ICollisionResult } from 'Engine/_collider/interfaces';
 import { Transform } from './Transform';
 import { Vector2 } from './Vector2';
 
@@ -12,6 +12,11 @@ export interface IGameObjectOptions {
    * @description Трансформация игрового объекта
    */
   transform: Transform;
+  /**
+   * @type {boolean | undefined}
+   * @description Включает отладку для объекта
+   */
+  debug?: boolean;
 }
 
 /**
@@ -30,6 +35,11 @@ export interface IGameObject {
    */
   transform: Transform;
   /**
+   * @type {number}
+   * @description Скорость вращения
+   */
+  rotationVelocity: number;
+  /**
    * @type {Vector2}
    * @description Скорость игрового объекта
    */
@@ -39,6 +49,13 @@ export interface IGameObject {
    * @description Ускорение игрового объекта
    */
   acceleration: Vector2;
+
+  /**
+   * @description Обрабатывает столкновение с другим игровым объектом
+   * @param other Другой игровой объект
+   * @param result Результат столкновения
+   */
+  onCollision(other: IGameObject, result: ICollisionResult): void;
 }
 
 /**
@@ -61,4 +78,9 @@ export interface IEngineCoreOptions {
    * @description Функция обратного вызова, вызываемая перед отрисовкой
    */
   onBeforeDraw?: () => void;
+  /**
+   * @type {boolean | undefined}
+   * @description Включает отладку для движка
+   */
+  debug?: boolean;
 }
